@@ -161,6 +161,14 @@ export default function Home() {
             </div>
           )}
         </div>
+        {identity && (
+          <Link
+            href={`/climber/${identity.id}`}
+            className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-4 py-2 text-sm font-bold text-white shadow-md shadow-amber-100 transition hover:shadow-lg hover:brightness-105"
+          >
+            🏅 我的勋章
+          </Link>
+        )}
       </header>
 
       <div className="mt-4 flex items-center justify-center gap-3">
@@ -233,15 +241,22 @@ export default function Home() {
       )}
 
       {badgeToast && (
-        <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
-          <div className="rounded-2xl bg-gray-900 px-5 py-3 text-center text-white shadow-xl">
-            <div className="text-sm font-semibold">🎉 解锁新称号</div>
-            <div className="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-1">
-              {badgeToast.map((b) => (
-                <span key={b.id} className="text-sm">
-                  {b.emoji} {b.name}
-                </span>
-              ))}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+          onClick={() => setBadgeToast(null)}
+        >
+          <div className="animate-[badge-pop_0.45s_cubic-bezier(0.34,1.56,0.64,1)] w-full max-w-xs rounded-3xl bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500 p-[2px] shadow-2xl">
+            <div className="rounded-3xl bg-gray-900 px-6 py-6 text-center text-white">
+              <div className="text-4xl">🎉</div>
+              <div className="mt-2 text-base font-bold">解锁新称号</div>
+              <div className="mt-3 flex flex-col items-center gap-2">
+                {badgeToast.map((b) => (
+                  <div key={b.id} className="flex items-center gap-2">
+                    <span className="text-3xl">{b.emoji}</span>
+                    <span className="text-lg font-bold text-amber-300">{b.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
