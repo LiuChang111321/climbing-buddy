@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BookingModal } from '@/components/BookingModal';
 import { IdentityDialog } from '@/components/IdentityDialog';
@@ -43,8 +44,10 @@ export default function Home() {
   const endStr = toDateString(weekDates[6]);
 
   useEffect(() => {
-    setIdentity(loadIdentity());
+    const stored = loadIdentity();
+    setIdentity(stored);
     setReady(true);
+    if (stored) upsertClimber(stored).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -140,13 +143,22 @@ export default function Home() {
             <span className="mr-1.5">🧗</span>今天去哪爬!!!
           </h1>
           {identity && (
-            <button
-              type="button"
-              onClick={() => setShowIdentity(true)}
-              className="mt-0.5 text-sm text-gray-500 transition hover:text-sky-600"
-            >
-              {identity.avatar} {identity.nickname} · 编辑
-            </button>
+            <div className="mt-0.5 flex items-center gap-1 text-sm">
+              <Link
+                href={`/climber/${identity.id}`}
+                className="flex items-center gap-1 font-medium text-gray-600 transition hover:text-sky-600"
+              >
+                {identity.avatar} {identity.nickname}
+              </Link>
+              <span className="text-gray-300">·</span>
+              <button
+                type="button"
+                onClick={() => setShowIdentity(true)}
+                className="text-gray-400 transition hover:text-sky-600"
+              >
+                编辑
+              </button>
+            </div>
           )}
         </div>
       </header>
