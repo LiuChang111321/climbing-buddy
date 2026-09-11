@@ -49,20 +49,20 @@ export async function PATCH(
   if (booking.climberId !== userId) {
     return Response.json({ error: 'forbidden' }, { status: 403 });
   }
-  const authorized = await verifyClimberSecret(userId, secret);
+  const [authorized, gymRows, existing] = await Promise.all([
+    verifyClimberSecret(userId, secret),
+    db.select({ id: gyms.id }).from(gyms).where(eq(gyms.id, gymId)),
+    db
+      .select()
+      .from(bookings)
+      .where(and(eq(bookings.climberId, userId), eq(bookings.date, date), eq(bookings.time, time))),
+  ]);
   if (!authorized) {
     return Response.json({ error: 'forbidden' }, { status: 403 });
   }
-
-  const gymRows = await db.select({ id: gyms.id }).from(gyms).where(eq(gyms.id, gymId));
   if (gymRows.length === 0) {
     return Response.json({ error: 'unknown gym' }, { status: 400 });
   }
-
-  const existing = await db
-    .select()
-    .from(bookings)
-    .where(and(eq(bookings.climberId, userId), eq(bookings.date, date), eq(bookings.time, time)));
   if (existing.some((b) => b.id !== bookingId)) {
     return Response.json({ error: 'duplicate booking' }, { status: 409 });
   }
@@ -122,12 +122,13 @@ export async function DELETE(
     return Response.json({ error: 'forbidden' }, { status: 403 });
   }
 
-  await db
-    .update(climbers)
-    .set({ cancelCount: sql`${climbers.cancelCount} + 1` })
-    .where(eq(climbers.id, userId));
-
-  await db.delete(bookings).where(eq(bookings.id, bookingId));
+  await Promise.all([
+    db
+      .update(climbers)
+      .set({ cancelCount: sql`${climbers.cancelCount} + 1` })
+      .where(eq(climbers.id, userId)),
+    db.delete(bookings).where(eq(bookings.id, bookingId)),
+  ]);
 
   let newBadges: BadgeDef[] = [];
   try {

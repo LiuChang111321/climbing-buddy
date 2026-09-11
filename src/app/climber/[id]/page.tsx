@@ -46,33 +46,33 @@ export default async function ClimberPage({
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
-  const [climber] = await db
-    .select({
-      id: climbers.id,
-      nickname: climbers.nickname,
-      avatar: climbers.avatar,
-      signature: climbers.signature,
-    })
-    .from(climbers)
-    .where(eq(climbers.id, id));
+  const [[climber], history, badgeRows] = await Promise.all([
+    db
+      .select({
+        id: climbers.id,
+        nickname: climbers.nickname,
+        avatar: climbers.avatar,
+        signature: climbers.signature,
+      })
+      .from(climbers)
+      .where(eq(climbers.id, id)),
+    db
+      .select({
+        id: bookings.id,
+        date: bookings.date,
+        time: bookings.time,
+        gymName: gyms.name,
+      })
+      .from(bookings)
+      .innerJoin(gyms, eq(bookings.gymId, gyms.id))
+      .where(eq(bookings.climberId, id))
+      .orderBy(desc(bookings.date), desc(bookings.time)),
+    db
+      .select({ badgeId: badges.badgeId })
+      .from(badges)
+      .where(eq(badges.climberId, id)),
+  ]);
   if (!climber) notFound();
-
-  const history = await db
-    .select({
-      id: bookings.id,
-      date: bookings.date,
-      time: bookings.time,
-      gymName: gyms.name,
-    })
-    .from(bookings)
-    .innerJoin(gyms, eq(bookings.gymId, gyms.id))
-    .where(eq(bookings.climberId, id))
-    .orderBy(desc(bookings.date), desc(bookings.time));
-
-  const badgeRows = await db
-    .select({ badgeId: badges.badgeId })
-    .from(badges)
-    .where(eq(badges.climberId, id));
   const unlockedIds = new Set(badgeRows.map((b) => b.badgeId));
 
   const sortedBadges = [...BADGES].sort(

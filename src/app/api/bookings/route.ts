@@ -81,21 +81,20 @@ export async function POST(request: Request) {
     return Response.json({ error: 'invalid time' }, { status: 400 });
   }
 
-  const authorized = await verifyClimberSecret(climberId, secret);
+  const [authorized, gymRows, existing] = await Promise.all([
+    verifyClimberSecret(climberId, secret),
+    db.select({ id: gyms.id }).from(gyms).where(eq(gyms.id, gymId)),
+    db
+      .select()
+      .from(bookings)
+      .where(and(eq(bookings.climberId, climberId), eq(bookings.date, date), eq(bookings.time, time))),
+  ]);
   if (!authorized) {
     return Response.json({ error: 'forbidden' }, { status: 403 });
   }
-
-  const gymRows = await db.select({ id: gyms.id }).from(gyms).where(eq(gyms.id, gymId));
   if (gymRows.length === 0) {
     return Response.json({ error: 'unknown gym' }, { status: 400 });
   }
-
-  const existing = await db
-    .select()
-    .from(bookings)
-    .where(and(eq(bookings.climberId, climberId), eq(bookings.date, date), eq(bookings.time, time)));
-
   if (existing.length > 0) {
     return Response.json({ error: 'duplicate booking' }, { status: 409 });
   }
