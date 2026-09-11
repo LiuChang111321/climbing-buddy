@@ -105,12 +105,12 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-sm font-bold ${day.today ? 'text-sky-600' : 'text-gray-800'}`}
+                  className={`text-base font-bold ${day.today ? 'text-sky-600' : 'text-gray-800'}`}
                 >
                   {WEEKDAY_LABELS[day.index]} {formatDayLabel(day.date)}
                 </span>
                 {day.today && (
-                  <span className="rounded-full bg-sky-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="rounded-full bg-sky-500 px-2 py-0.5 text-xs font-semibold text-white">
                     今天
                   </span>
                 )}
@@ -126,12 +126,12 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
             </div>
 
             {day.groups.length === 0 ? (
-              <div className="px-4 pb-4 text-xs text-gray-300">还没人约 🧗</div>
+              <div className="px-4 pb-4 text-sm text-gray-300">还没人约 🧗</div>
             ) : (
               <div className="space-y-3 px-4 pb-4">
                 {day.groups.map((g) => (
                   <div key={g.bucket.label}>
-                    <div className="text-xs font-medium text-gray-400">
+                    <div className="text-sm font-medium text-gray-400">
                       {g.bucket.emoji} {g.bucket.label}
                     </div>
                     <div className="mt-1.5 space-y-2">
@@ -139,7 +139,7 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
                         <div key={gg.gymId}>
                           <div className="mb-1">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${gymColor(
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${gymColor(
                                 gg.gymName,
                               )}`}
                             >
@@ -153,11 +153,11 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
                                 currentUserId !== null && b.climberId === currentUserId;
                               const inner = (
                                 <>
-                                  <span className="text-lg font-bold leading-none">{b.avatar}</span>
-                                  <span className="text-xs font-medium text-gray-700">
+                                  <span className="text-2xl font-bold leading-none">{b.avatar}</span>
+                                  <span className="text-sm font-medium text-gray-700">
                                     {b.nickname}
                                   </span>
-                                  <span className="text-[10px] text-gray-400">{b.time}</span>
+                                  <span className="text-xs text-gray-400">{b.time}</span>
                                 </>
                               );
                               return isMine ? (
