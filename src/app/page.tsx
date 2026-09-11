@@ -139,15 +139,13 @@ export default function Home() {
     <main className="mx-auto max-w-5xl px-4 py-6">
       <header>
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
-            <span className="mr-1.5">🧗</span>今天去哪爬!!!
-          </h1>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">今天去哪爬!!!</h1>
           {identity && (
             <Link
               href={`/climber/${identity.id}`}
-              className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
+              className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
             >
-              🏅 我的勋章
+              🏅 勋章
             </Link>
           )}
         </div>
