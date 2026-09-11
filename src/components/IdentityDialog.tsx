@@ -62,13 +62,9 @@ export function IdentityDialog({ initial, onConfirm, onClose }: Props) {
           <span className="text-sm text-gray-500">或者用一个字：</span>
           <input
             value={charAvatar}
-            onChange={(e) => {
-              const ch = e.target.value.trim().charAt(0);
-              setAvatar(ch || AVATARS[0]);
-            }}
+            onChange={(e) => setAvatar(e.target.value)}
             placeholder="畅"
-            maxLength={1}
-            className="h-10 w-16 rounded-xl border border-gray-300 text-center text-lg font-bold text-gray-900 outline-none focus:border-sky-400"
+            className="h-10 w-24 rounded-xl border border-gray-300 text-center text-lg font-bold text-gray-900 outline-none focus:border-sky-400"
           />
         </div>
 
@@ -84,7 +80,12 @@ export function IdentityDialog({ initial, onConfirm, onClose }: Props) {
           )}
           <button
             type="button"
-            onClick={() => onConfirm(nickname.trim(), avatar, signature.trim())}
+            onClick={() => {
+              const finalAvatar = isEmojiAvatar
+                ? avatar
+                : Array.from(avatar.trim())[0] || AVATARS[0];
+              onConfirm(nickname.trim(), finalAvatar, signature.trim());
+            }}
             disabled={!canSubmit}
             className="flex-1 rounded-xl bg-gradient-to-br from-sky-400 to-sky-500 py-3 font-semibold text-white shadow-md shadow-sky-100 transition disabled:opacity-40"
           >

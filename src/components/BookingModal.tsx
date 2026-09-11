@@ -26,6 +26,7 @@ export function BookingModal({
   const [date, setDate] = useState(initial?.date ?? defaultDate ?? toDateString(weekDates[0]));
   const [time, setTime] = useState(initial?.time ?? '19:00');
   const [gymId, setGymId] = useState(initial?.gymId ?? gyms[0]?.id ?? 0);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const canSubmit = time !== '' && gymId !== 0;
 
@@ -89,10 +90,20 @@ export function BookingModal({
         {onDelete && (
           <button
             type="button"
-            onClick={onDelete}
-            className="mt-3 w-full rounded-xl border border-red-200 py-3 font-semibold text-red-600 transition hover:bg-red-50"
+            onClick={() => {
+              if (confirmingDelete) {
+                onDelete();
+              } else {
+                setConfirmingDelete(true);
+              }
+            }}
+            className={`mt-3 w-full rounded-xl border py-3 font-semibold transition ${
+              confirmingDelete
+                ? 'border-red-500 bg-red-500 text-white hover:bg-red-600'
+                : 'border-red-200 text-red-600 hover:bg-red-50'
+            }`}
           >
-            取消这次报名
+            {confirmingDelete ? '再点一次，确认取消' : '取消这次报名'}
           </button>
         )}
       </div>

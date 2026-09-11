@@ -100,7 +100,6 @@ export default function Home() {
 
   const handleDeleteBooking = async (booking: BookingRow) => {
     if (!identity) return;
-    if (!window.confirm('确定取消这次报名？')) return;
     try {
       await deleteBooking(booking.id, identity.id, identity.secret);
       setModal(null);
