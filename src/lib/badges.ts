@@ -15,7 +15,7 @@ export const RARITY_ORDER: Record<Rarity, number> = {
 };
 
 export const BADGES: BadgeDef[] = [
-  { id: 'first_step', name: '破冰', emoji: '🧗', rarity: 'common', desc: '完成第一次报名' },
+  { id: 'first_step', name: '破冰', emoji: '👶', rarity: 'common', desc: '完成第一次报名' },
   { id: 'night_owl', name: '夜猫子', emoji: '🌙', rarity: 'common', desc: '至少 2 次且全在晚上（≥18 点）' },
   { id: 'early_bird', name: '早鸟', emoji: '🌅', rarity: 'common', desc: '爬过早场（10 点前）' },
   { id: 'weekly_regular', name: '周常客', emoji: '🔥', rarity: 'rare', desc: '一周报名 ≥2 次' },
@@ -111,9 +111,10 @@ export function evaluateBadges(bookings: BookingLike[], cancelCount: number): st
 }
 
 export function topBadge(badgeIds: string[]): BadgeDef | undefined {
-  if (badgeIds.length === 0) return undefined;
-  return badgeIds
+  const defs = badgeIds
     .map((id) => BADGE_MAP[id])
     .filter((b): b is BadgeDef => Boolean(b))
-    .sort((a, b) => RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity])[0];
+    .filter((b) => b.rarity !== 'common');
+  if (defs.length === 0) return undefined;
+  return defs.sort((a, b) => RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity])[0];
 }

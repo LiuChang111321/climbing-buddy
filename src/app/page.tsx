@@ -137,37 +137,37 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
-      <header className="flex items-center justify-between">
-        <div>
+      <header>
+        <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             <span className="mr-1.5">🧗</span>今天去哪爬!!!
           </h1>
           {identity && (
-            <div className="mt-0.5 flex items-center gap-1 text-sm">
-              <Link
-                href={`/climber/${identity.id}`}
-                className="flex items-center gap-1 font-medium text-gray-600 transition hover:text-sky-600"
-              >
-                {identity.avatar} {identity.nickname}
-              </Link>
-              <span className="text-gray-300">·</span>
-              <button
-                type="button"
-                onClick={() => setShowIdentity(true)}
-                className="text-gray-400 transition hover:text-sky-600"
-              >
-                编辑
-              </button>
-            </div>
+            <Link
+              href={`/climber/${identity.id}`}
+              className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
+            >
+              🏅 我的勋章
+            </Link>
           )}
         </div>
         {identity && (
-          <Link
-            href={`/climber/${identity.id}`}
-            className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
-          >
-            🏅 我的勋章
-          </Link>
+          <div className="mt-1 flex items-center gap-1 text-sm">
+            <Link
+              href={`/climber/${identity.id}`}
+              className="flex items-center gap-1 font-medium text-gray-600 transition hover:text-sky-600"
+            >
+              {identity.avatar} {identity.nickname}
+            </Link>
+            <span className="text-gray-300">·</span>
+            <button
+              type="button"
+              onClick={() => setShowIdentity(true)}
+              className="text-gray-400 transition hover:text-sky-600"
+            >
+              编辑
+            </button>
+          </div>
         )}
       </header>
 
