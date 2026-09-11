@@ -14,7 +14,7 @@ import {
 } from '@/lib/api';
 import { formatDayLabel, getWeekDates, toDateString } from '@/lib/date';
 import { loadIdentity, persistIdentity } from '@/lib/storage';
-import type { BookingInput, BookingRow, Gym, Identity } from '@/lib/types';
+import type { BadgeDef, BookingInput, BookingRow, Gym, Identity } from '@/lib/types';
 
 type ModalState =
   | { mode: 'create'; defaultDate?: string }
@@ -31,6 +31,7 @@ export default function Home() {
   const [modal, setModal] = useState<ModalState>(null);
   const [showIdentity, setShowIdentity] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [badgeToast, setBadgeToast] = useState<BadgeDef[] | null>(null);
 
   const weekDates = useMemo(() => {
     const base = new Date(now);
@@ -69,6 +70,12 @@ export default function Home() {
     refresh().catch((err: Error) => setError(err.message));
   }, [refresh]);
 
+  useEffect(() => {
+    if (!badgeToast) return;
+    const id = setTimeout(() => setBadgeToast(null), 3500);
+    return () => clearTimeout(id);
+  }, [badgeToast]);
+
   const handleConfirmIdentity = async (nickname: string, avatar: string, signature: string) => {
     const newIdentity: Identity = identity
       ? { ...identity, nickname, avatar, signature }
@@ -86,12 +93,14 @@ export default function Home() {
   const handleSubmitBooking = async (input: BookingInput) => {
     if (!identity) return;
     try {
+      let result: { newBadges: BadgeDef[] };
       if (modal?.mode === 'edit') {
-        await updateBooking(modal.booking.id, { ...input, userId: identity.id, secret: identity.secret });
+        result = await updateBooking(modal.booking.id, { ...input, userId: identity.id, secret: identity.secret });
       } else {
-        await createBooking({ ...input, climberId: identity.id, secret: identity.secret });
+        result = await createBooking({ ...input, climberId: identity.id, secret: identity.secret });
       }
       setModal(null);
+      if (result.newBadges.length > 0) setBadgeToast(result.newBadges);
       await refresh();
     } catch (err) {
       setError((err as Error).message);
@@ -101,8 +110,9 @@ export default function Home() {
   const handleDeleteBooking = async (booking: BookingRow) => {
     if (!identity) return;
     try {
-      await deleteBooking(booking.id, identity.id, identity.secret);
+      const result = await deleteBooking(booking.id, identity.id, identity.secret);
       setModal(null);
+      if (result.newBadges.length > 0) setBadgeToast(result.newBadges);
       await refresh();
     } catch (err) {
       setError((err as Error).message);
@@ -208,6 +218,21 @@ export default function Home() {
             modal.mode === 'edit' ? () => handleDeleteBooking(modal.booking) : undefined
           }
         />
+      )}
+
+      {badgeToast && (
+        <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+          <div className="rounded-2xl bg-gray-900 px-5 py-3 text-center text-white shadow-xl">
+            <div className="text-sm font-semibold">🎉 解锁新称号</div>
+            <div className="mt-1 flex flex-wrap justify-center gap-x-3 gap-y-1">
+              {badgeToast.map((b) => (
+                <span key={b.id} className="text-sm">
+                  {b.emoji} {b.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

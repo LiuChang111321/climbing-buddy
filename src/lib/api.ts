@@ -1,4 +1,7 @@
+import type { BadgeDef } from './badges';
 import type { BookingInput, BookingRow, Gym, Identity } from './types';
+
+type MutationResult = { newBadges: BadgeDef[] };
 
 async function jsonFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -18,7 +21,7 @@ export function fetchBookings(start: string, end: string): Promise<BookingRow[]>
 }
 
 export function createBooking(input: BookingInput & { climberId: string; secret: string }) {
-  return jsonFetch('/api/bookings', {
+  return jsonFetch<MutationResult>('/api/bookings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
@@ -26,7 +29,7 @@ export function createBooking(input: BookingInput & { climberId: string; secret:
 }
 
 export function updateBooking(id: number, input: BookingInput & { userId: string; secret: string }) {
-  return jsonFetch(`/api/bookings/${id}`, {
+  return jsonFetch<MutationResult>(`/api/bookings/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
@@ -34,7 +37,7 @@ export function updateBooking(id: number, input: BookingInput & { userId: string
 }
 
 export function deleteBooking(id: number, userId: string, secret: string) {
-  return jsonFetch(`/api/bookings/${id}`, {
+  return jsonFetch<MutationResult>(`/api/bookings/${id}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId, secret }),

@@ -1,3 +1,7 @@
+import type { BadgeDef } from './badges';
+
+export type { BadgeDef };
+
 export type Gym = {
   id: number;
   name: string;
@@ -13,6 +17,7 @@ export type BookingRow = {
   climberId: string;
   nickname: string;
   avatar: string;
+  badge?: BadgeDef;
 };
 
 export type Identity = {

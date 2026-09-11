@@ -1,7 +1,9 @@
-import { and, asc, eq, gte, lte } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lte } from 'drizzle-orm';
 import { verifyClimberSecret } from '@/lib/auth';
+import { unlockNewBadges } from '@/lib/badge-service';
+import { topBadge, type BadgeDef } from '@/lib/badges';
 import { db } from '@/lib/db';
-import { bookings, climbers, gyms } from '@/lib/db/schema';
+import { badges, bookings, climbers, gyms } from '@/lib/db/schema';
 import { isDateStr, isTimeStr, isUuid } from '@/lib/validate';
 
 export async function GET(request: Request) {
@@ -30,7 +32,27 @@ export async function GET(request: Request) {
     .where(and(gte(bookings.date, start), lte(bookings.date, end)))
     .orderBy(asc(bookings.date), asc(bookings.time));
 
-  return Response.json(rows);
+  const climberIds = [...new Set(rows.map((r) => r.climberId))];
+  const badgeRows = climberIds.length
+    ? await db
+        .select({ climberId: badges.climberId, badgeId: badges.badgeId })
+        .from(badges)
+        .where(inArray(badges.climberId, climberIds))
+    : [];
+
+  const badgeIdsByClimber = new Map<string, string[]>();
+  for (const b of badgeRows) {
+    const list = badgeIdsByClimber.get(b.climberId) ?? [];
+    list.push(b.badgeId);
+    badgeIdsByClimber.set(b.climberId, list);
+  }
+
+  const result = rows.map((r) => {
+    const badge = topBadge(badgeIdsByClimber.get(r.climberId) ?? []);
+    return badge ? { ...r, badge } : r;
+  });
+
+  return Response.json(result);
 }
 
 export async function POST(request: Request) {
@@ -78,13 +100,22 @@ export async function POST(request: Request) {
     return Response.json({ error: 'duplicate booking' }, { status: 409 });
   }
 
-  try {
-    const [row] = await db
-      .insert(bookings)
-      .values({ climberId, gymId, date, time })
-      .returning();
-    return Response.json(row, { status: 201 });
-  } catch {
+  const inserted = await db
+    .insert(bookings)
+    .values({ climberId, gymId, date, time })
+    .returning()
+    .catch(() => null);
+
+  if (!inserted) {
     return Response.json({ error: 'duplicate booking' }, { status: 409 });
   }
+
+  let newBadges: BadgeDef[] = [];
+  try {
+    newBadges = await unlockNewBadges(climberId);
+  } catch (err) {
+    console.error('unlock badges failed:', err);
+  }
+
+  return Response.json({ ...inserted[0], newBadges }, { status: 201 });
 }

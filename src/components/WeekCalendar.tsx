@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { formatDayLabel, isToday, toDateString, WEEKDAY_LABELS } from '@/lib/date';
+import type { BadgeDef } from '@/lib/badges';
 import type { BookingRow } from '@/lib/types';
 
 const GYM_COLORS = [
@@ -32,6 +33,23 @@ const TIME_BUCKETS = [
   { label: '下午', emoji: '🌤️', maxHour: 18 },
   { label: '晚上', emoji: '🌙', maxHour: 24 },
 ] as const;
+
+const BADGE_DOT: Record<BadgeDef['rarity'], string> = {
+  common: 'bg-stone-100 ring-stone-300',
+  rare: 'bg-slate-100 ring-slate-300',
+  legendary: 'bg-amber-100 ring-amber-400',
+};
+
+function BadgeDot({ badge }: { badge: BadgeDef }) {
+  return (
+    <span
+      title={`${badge.name} · ${badge.desc}`}
+      className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] ring-2 ${BADGE_DOT[badge.rarity]}`}
+    >
+      {badge.emoji}
+    </span>
+  );
+}
 
 function gymColor(gymName: string): string {
   let h = 0;
@@ -154,6 +172,7 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
                               const inner = (
                                 <>
                                   <span className="text-2xl font-bold leading-none">{b.avatar}</span>
+                                  {b.badge && <BadgeDot badge={b.badge} />}
                                   <span className="text-sm font-medium text-gray-700">
                                     {b.nickname}
                                   </span>
@@ -241,11 +260,16 @@ export function WeekCalendar({ weekDates, bookings, currentUserId, onAdd, onEdit
                               const inner = (
                                 <>
                                   <div
-                                    className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br text-2xl font-bold shadow-sm ring-2 ring-white ${avatarBg(
+                                    className={`relative mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br text-2xl font-bold shadow-sm ring-2 ring-white ${avatarBg(
                                       b.climberId,
                                     )}`}
                                   >
                                     {b.avatar}
+                                    {b.badge && (
+                                      <span className="absolute -right-1.5 -top-1.5">
+                                        <BadgeDot badge={b.badge} />
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="mt-0.5 truncate text-xs font-medium text-gray-800">
                                     {b.nickname}

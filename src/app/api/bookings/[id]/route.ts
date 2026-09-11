@@ -1,7 +1,9 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { verifyClimberSecret } from '@/lib/auth';
+import { unlockNewBadges } from '@/lib/badge-service';
+import type { BadgeDef } from '@/lib/badges';
 import { db } from '@/lib/db';
-import { bookings, gyms } from '@/lib/db/schema';
+import { bookings, climbers, gyms } from '@/lib/db/schema';
 import { isDateStr, isTimeStr, isUuid } from '@/lib/validate';
 
 export async function PATCH(
@@ -71,7 +73,14 @@ export async function PATCH(
     .where(eq(bookings.id, bookingId))
     .returning();
 
-  return Response.json(updated);
+  let newBadges: BadgeDef[] = [];
+  try {
+    newBadges = await unlockNewBadges(userId);
+  } catch (err) {
+    console.error('unlock badges failed:', err);
+  }
+
+  return Response.json({ ...updated, newBadges });
 }
 
 export async function DELETE(
@@ -113,6 +122,19 @@ export async function DELETE(
     return Response.json({ error: 'forbidden' }, { status: 403 });
   }
 
+  await db
+    .update(climbers)
+    .set({ cancelCount: sql`${climbers.cancelCount} + 1` })
+    .where(eq(climbers.id, userId));
+
   await db.delete(bookings).where(eq(bookings.id, bookingId));
-  return Response.json({ ok: true });
+
+  let newBadges: BadgeDef[] = [];
+  try {
+    newBadges = await unlockNewBadges(userId);
+  } catch (err) {
+    console.error('unlock badges failed:', err);
+  }
+
+  return Response.json({ ok: true, newBadges });
 }
