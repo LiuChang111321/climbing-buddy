@@ -140,14 +140,22 @@ export default function Home() {
       <header>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">今天去哪爬!!!</h1>
-          {identity && (
+          <div className="flex shrink-0 items-center gap-2">
             <Link
-              href={`/climber/${identity.id}`}
-              className="flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
+              href="/leaderboard"
+              className="flex items-center gap-1 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-sky-100 transition hover:brightness-105"
             >
-              🏅 勋章
+              🏆 排行榜
             </Link>
-          )}
+            {identity && (
+              <Link
+                href={`/climber/${identity.id}`}
+                className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 px-3.5 py-2 text-sm font-bold text-white shadow-sm shadow-amber-100 transition hover:brightness-105"
+              >
+                🏅 勋章
+              </Link>
+            )}
+          </div>
         </div>
         {identity && (
           <div className="mt-1 flex items-center gap-1 text-sm">
